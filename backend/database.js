@@ -95,6 +95,8 @@ function initializeDB() {
     }
 
     // Nếu không có Turso, chạy SQLite file cục bộ
+    console.warn('⚠️ THIẾU CẤU HÌNH TURSO! KHÔNG TÌM THẤY TURSO_DATABASE_URL HOẶC TURSO_AUTH_TOKEN TRONG BIẾN MÔI TRƯỜNG.');
+    console.warn('⚠️ HỆ THỐNG SẼ CHẠY BẰNG SQLITE CỤC BỘ (nananail.db). DỮ LIỆU SẼ BỊ MẤT KHI RENDER KHỞI ĐỘNG LẠI!');
     const dbExists = fs.existsSync(DB_FILE);
 
     const startApp = () => {
@@ -103,7 +105,7 @@ function initializeDB() {
                 console.error('❌ Error connecting to database:', err.message);
                 return;
             }
-            console.log('✅ Connected to the local NanaNail SQLite database.');
+            console.log('✅ Connected to the local NanaNail SQLite database (EPHEMERAL).');
 
             createTables(db, () => {
                 runMigrations(db);
