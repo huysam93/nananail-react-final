@@ -1,0 +1,62 @@
+name: CI/CD Build & Deploy NanaNail
+
+on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - 'README.md'
+      - 'build.txt'
+      - 'design.md'
+
+jobs:
+  build-and-sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: |
+            frontend/package-lock.json
+            backend/package-lock.json
+
+      - name: Install dependencies & Build Frontend
+        run: |
+          cd frontend
+          npm ci
+          npx vite build
+
+      - name: Sync frontend dist to backend/dist
+        run: |
+          rm -rf backend/dist
+          mkdir -p backend/dist
+          cp -r frontend/dist/* backend/dist/
+
+      - name: Commit updated dist (if changed)
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add backend/dist
+          if ! git diff --staged --quiet; then
+            git commit -m "chore(ci): auto-build frontend & sync backend/dist [skip ci]"
+            git push origin main
+          else
+            echo "backend/dist is already up-to-date."
+          fi
+
+      - name: Trigger Deploy Webhook (Optional)
+        if: ${{ env.BOTKEEP_HOOK != '' }}
+        env:
+          BOTKEEP_HOOK: ${{ secrets.BOTKEEP_DEPLOY_HOOK }}
+        run: |
+          echo "Triggering auto-deploy via Webhook..."
+          curl -f -X POST "$BOTKEEP_HOOK" || echo "Webhook trigger warning: Check URL"
