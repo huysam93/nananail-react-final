@@ -21,13 +21,14 @@ const ManagePromotions = () => {
     const fetchPromotions = async () => {
         try {
             const res = await apiClient.get('/promotions/all');
-            setPromotions(res.data);
+            setPromotions(Array.isArray(res.data) ? res.data : []);
         } catch {
-            // API chưa có /all — thử /promotions
             try {
                 const res = await apiClient.get('/promotions');
-                setPromotions(res.data);
-            } catch {}
+                setPromotions(Array.isArray(res.data) ? res.data : []);
+            } catch {
+                setPromotions([]);
+            }
         }
     };
 
@@ -86,11 +87,12 @@ const ManagePromotions = () => {
     };
 
     const formatDate = (d) => d ? new Date(d).toLocaleDateString('vi-VN') : '—';
+    const promoList = Array.isArray(promotions) ? promotions : [];
 
     return (
         <div className="space-y-5">
             <div className="flex justify-between items-center">
-                <h3 className="font-semibold text-gray-700">Quản lý {promotions.length} khuyến mãi</h3>
+                <h3 className="font-semibold text-gray-700">Quản lý {promoList.length} khuyến mãi</h3>
                 <button
                     onClick={() => { setForm(emptyForm); setEditId(null); setShowForm(s => !s); }}
                     className="btn-primary text-sm px-4 py-2"
@@ -159,11 +161,11 @@ const ManagePromotions = () => {
             )}
 
             {/* List */}
-            {promotions.length === 0 ? (
+            {promoList.length === 0 ? (
                 <div className="text-center py-10 text-gray-400 text-sm">Chưa có khuyến mãi nào.</div>
             ) : (
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {promotions.map((promo, i) => (
+                    {promoList.map((promo, i) => (
                         <motion.div
                             key={promo.id}
                             initial={{ opacity: 0, y: 20 }}

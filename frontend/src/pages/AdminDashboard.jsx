@@ -141,31 +141,31 @@ const DashboardHome = () => {
   const fetchData = async () => {
     try {
       const [servicesRes, appointmentsRes, reviewsRes, contactsRes, messagesRes, visitorsRes] = await Promise.all([
-        apiClient.get('/services'),
-        apiClient.get(`/appointments?start=${dateRange.startDate}&end=${dateRange.endDate}`),
-        apiClient.get('/reviews'),
-        apiClient.get('/contacts'),
-        apiClient.get('/messages'),
-        apiClient.get(`/visitors?start=${dateRange.startDate}&end=${dateRange.endDate}`)
+        apiClient.get('/services').catch(() => ({ data: [] })),
+        apiClient.get(`/appointments?start=${dateRange.startDate}&end=${dateRange.endDate}`).catch(() => ({ data: [] })),
+        apiClient.get('/reviews').catch(() => ({ data: [] })),
+        apiClient.get('/contacts').catch(() => ({ data: [] })),
+        apiClient.get('/messages').catch(() => ({ data: [] })),
+        apiClient.get(`/visitors/stats?start_date=${dateRange.startDate}&end_date=${dateRange.endDate}`).catch(() => ({ data: [] }))
       ]);
 
       setStats({
-        services: servicesRes.data.length,
-        appointments: appointmentsRes.data.length,
-        reviews: reviewsRes.data.length,
-        contacts: contactsRes.data.length,
-        messages: messagesRes.data.length,
-        visitors: visitorsRes.data.total || 0
+        services: Array.isArray(servicesRes?.data) ? servicesRes.data.length : 0,
+        appointments: Array.isArray(appointmentsRes?.data) ? appointmentsRes.data.length : 0,
+        reviews: Array.isArray(reviewsRes?.data) ? reviewsRes.data.length : 0,
+        contacts: Array.isArray(contactsRes?.data) ? contactsRes.data.length : 0,
+        messages: Array.isArray(messagesRes?.data) ? messagesRes.data.length : 0,
+        visitors: visitorsRes?.data?.total || (Array.isArray(visitorsRes?.data) ? visitorsRes.data.length : 0)
       });
 
       // Xử lý dữ liệu lịch hẹn theo tháng
-      processAppointmentsData(appointmentsRes.data);
+      processAppointmentsData(appointmentsRes?.data);
       // Xử lý dữ liệu lượt truy cập
-      const stats = await getVisitorStats(
+      const visitorData = await getVisitorStats(
         dateRange.startDate,
         dateRange.endDate
       );
-      setVisitorStats(stats);
+      setVisitorStats(Array.isArray(visitorData) ? visitorData : (Array.isArray(visitorData?.data) ? visitorData.data : []));
     } catch (error) {
       console.error('Lỗi khi tải dữ liệu thống kê:', error);
     } finally {
@@ -173,17 +173,22 @@ const DashboardHome = () => {
     }
   };
 
-
   useEffect(() => {
     fetchData();
   }, [dateRange]);
 
   const processAppointmentsData = (appointments) => {
     const monthlyData = new Array(12).fill(0);
-    appointments.forEach(apt => {
-      const month = new Date(apt.appointment_date).getMonth();
-      monthlyData[month]++;
-    });
+    if (Array.isArray(appointments)) {
+      appointments.forEach(apt => {
+        if (apt?.appointment_date) {
+          const month = new Date(apt.appointment_date).getMonth();
+          if (month >= 0 && month < 12) {
+            monthlyData[month]++;
+          }
+        }
+      });
+    }
     setAppointmentsByMonth(monthlyData);
   };
 
@@ -193,6 +198,8 @@ const DashboardHome = () => {
       [e.target.name]: e.target.value
     }));
   };
+
+  const safeVisitorStats = Array.isArray(visitorStats) ? visitorStats : [];
 
   const barChartData = {
     labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'],
@@ -206,10 +213,10 @@ const DashboardHome = () => {
   };
 
   const visitorChartData = {
-    labels: visitorStats.map(stat => stat.date),
+    labels: safeVisitorStats.map(stat => stat.date || stat.visit_date),
     datasets: [{
       label: 'Lượt truy cập',
-      data: visitorStats.map(stat => stat.count),
+      data: safeVisitorStats.map(stat => stat.count || stat.visit_count || 0),
       borderColor: 'rgb(75, 192, 192)',
       tension: 0.1,
       fill: false
@@ -239,17 +246,17 @@ const DashboardHome = () => {
   };
 
   const chartData = {
-    labels: visitorStats.map((stat) => stat.visit_date),
+    labels: safeVisitorStats.map((stat) => stat.visit_date || stat.date),
     datasets: [
       {
         label: "Tổng lượt truy cập",
-        data: visitorStats.map((stat) => stat.visit_count),
+        data: safeVisitorStats.map((stat) => stat.visit_count || stat.count || 0),
         borderColor: "rgb(75, 192, 192)",
         tension: 0.1,
       },
       {
         label: "Khách truy cập duy nhất",
-        data: visitorStats.map((stat) => stat.unique_visitors),
+        data: safeVisitorStats.map((stat) => stat.unique_visitors || 0),
         borderColor: "rgb(255, 99, 132)",
         tension: 0.1,
       },
@@ -310,11 +317,11 @@ const DashboardHome = () => {
           </div>
           <div className="bg-teal-50 p-4 rounded-lg">
             <h4 className="text-sm font-medium text-teal-600">Lượt truy cập</h4>
-            <p className="text-2xl font-bold text-teal-700"> {visitorStats.reduce((sum, stat) => sum + stat.visit_count, 0)}</p>
+            <p className="text-2xl font-bold text-teal-700"> {safeVisitorStats.reduce((sum, stat) => sum + (stat.visit_count || 0), 0)}</p>
           </div>
           <div className="bg-white-50 p-4 rounded-lg">
             <h4 className="text-sm font-medium text-teal-600">Khách truy cập duy nhất</h4>
-            <p className="text-2xl font-bold text-teal-700">  {visitorStats.reduce((sum, stat) => sum + stat.unique_visitors, 0)}</p>
+            <p className="text-2xl font-bold text-teal-700">  {safeVisitorStats.reduce((sum, stat) => sum + (stat.unique_visitors || 0), 0)}</p>
           </div>
         </div>
       </div>

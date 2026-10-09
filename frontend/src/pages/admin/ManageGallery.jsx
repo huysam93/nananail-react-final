@@ -20,9 +20,10 @@ const ManageGallery = () => {
     try {
       setLoading(true);
       const res = await apiClient.get('/gallery');
-      setImages(res.data);
+      setImages(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
       console.error("Failed to fetch gallery images", error);
+      setImages([]);
     } finally {
       setLoading(false);
     }
@@ -82,15 +83,17 @@ const ManageGallery = () => {
   // Get unique tags
   const tagsList = useMemo(() => {
     const set = new Set();
-    images.forEach(img => {
+    const list = Array.isArray(images) ? images : [];
+    list.forEach(img => {
       if (img.tag) set.add(img.tag.trim());
     });
     return Array.from(set);
   }, [images]);
 
   const filteredImages = useMemo(() => {
-    if (selectedTag === 'all') return images;
-    return images.filter(img => img.tag && img.tag.trim().toLowerCase() === selectedTag.toLowerCase());
+    const list = Array.isArray(images) ? images : [];
+    if (selectedTag === 'all') return list;
+    return list.filter(img => img.tag && img.tag.trim().toLowerCase() === selectedTag.toLowerCase());
   }, [images, selectedTag]);
 
   return (

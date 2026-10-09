@@ -12,9 +12,10 @@ const ManageContacts = () => {
     const fetchContacts = async () => {
         try {
             const res = await apiClient.get('/contacts');
-            setContacts(res.data);
+            setContacts(Array.isArray(res.data) ? res.data : []);
         } catch (error) {
             console.error("Failed to fetch contacts", error);
+            setContacts([]);
         }
     };
 
@@ -36,7 +37,7 @@ const ManageContacts = () => {
 
     return (
         <div className="space-y-4">
-            {contacts.length > 0 ? (
+            {Array.isArray(contacts) && contacts.length > 0 ? (
                 contacts.map(contact => (
                     <div key={contact.id} className="bg-gray-50 p-4 rounded-lg border">
                         <div className="flex justify-between items-start">

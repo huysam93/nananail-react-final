@@ -19,9 +19,10 @@ const ManageAppointments = () => {
     try {
       setLoading(true);
       const res = await apiClient.get('/appointments');
-      setAppointments(res.data);
+      setAppointments(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
       console.error("Failed to fetch appointments:", error);
+      setAppointments([]);
     } finally {
       setLoading(false);
     }
@@ -94,7 +95,8 @@ const ManageAppointments = () => {
 
   // Filter & Search
   const filtered = useMemo(() => {
-    return appointments.filter(a => {
+    const list = Array.isArray(appointments) ? appointments : [];
+    return list.filter(a => {
       const matchFilter = filter === 'all' ? true : a.status === filter;
       const q = searchQuery.toLowerCase();
       const matchSearch = !q ||
@@ -105,12 +107,13 @@ const ManageAppointments = () => {
     });
   }, [appointments, filter, searchQuery]);
 
+  const appList = Array.isArray(appointments) ? appointments : [];
   const counts = {
-    all: appointments.length,
-    pending: appointments.filter(a => a.status === 'pending').length,
-    confirmed: appointments.filter(a => a.status === 'confirmed').length,
-    cancelled: appointments.filter(a => a.status === 'cancelled').length,
-    done: appointments.filter(a => a.status === 'done').length,
+    all: appList.length,
+    pending: appList.filter(a => a.status === 'pending').length,
+    confirmed: appList.filter(a => a.status === 'confirmed').length,
+    cancelled: appList.filter(a => a.status === 'cancelled').length,
+    done: appList.filter(a => a.status === 'done').length,
   };
 
   // Calendar Helpers

@@ -19,7 +19,7 @@ const ManageBeforeAfter = () => {
     const fetchImages = async () => {
         try {
             const res = await apiClient.get('/before-after');
-            setImages(res.data);
+            setImages(Array.isArray(res.data) ? res.data : (Array.isArray(res.data?.data) ? res.data.data : []));
         } catch { setImages([]); }
     };
 
@@ -76,10 +76,12 @@ const ManageBeforeAfter = () => {
         fetchImages();
     };
 
+    const imageList = Array.isArray(images) ? images : [];
+
     return (
         <div className="space-y-5">
             <div className="flex justify-between items-center">
-                <h3 className="font-semibold text-gray-700">{images.length} cặp ảnh Trước / Sau</h3>
+                <h3 className="font-semibold text-gray-700">{imageList.length} cặp ảnh Trước / Sau</h3>
                 <button
                     onClick={() => setShowForm(s => !s)}
                     className="btn-primary text-sm px-4 py-2"
@@ -190,14 +192,14 @@ const ManageBeforeAfter = () => {
             )}
 
             {/* Grid list */}
-            {images.length === 0 ? (
+            {imageList.length === 0 ? (
                 <div className="text-center py-12 text-gray-400">
                     <ImageIcon size={40} className="mx-auto mb-3 opacity-40" />
                     <p className="text-sm">Chưa có cặp ảnh nào. Nhấn "Thêm Cặp Ảnh" để bắt đầu!</p>
                 </div>
             ) : (
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                    {images.map((img, i) => (
+                    {imageList.map((img, i) => (
                         <motion.div
                             key={img.id}
                             initial={{ opacity: 0, scale: 0.95 }}

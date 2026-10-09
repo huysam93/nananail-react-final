@@ -33,10 +33,14 @@ const ManagePosts = () => {
   const fetchPosts = async () => {
     try {
       const res = await apiClient.get('/posts/all');
-      setPosts(res.data);
+      setPosts(Array.isArray(res.data) ? res.data : []);
     } catch {
-      const res = await apiClient.get('/posts');
-      setPosts(res.data);
+      try {
+        const res = await apiClient.get('/posts');
+        setPosts(Array.isArray(res.data) ? res.data : []);
+      } catch {
+        setPosts([]);
+      }
     }
   };
 
@@ -97,7 +101,8 @@ const ManagePosts = () => {
     fetchPosts();
   };
 
-  const filtered = filter === 'all' ? posts : posts.filter(p => p.status === filter);
+  const postList = Array.isArray(posts) ? posts : [];
+  const filtered = filter === 'all' ? postList : postList.filter(p => p.status === filter);
   const formatDate = (d) => d ? new Date(d).toLocaleDateString('vi-VN') : '';
 
   return (
@@ -105,9 +110,9 @@ const ManagePosts = () => {
       {/* Toolbar */}
       <div className="flex items-center gap-3 mb-4 flex-wrap">
         {[
-          { key: 'all', label: `Tất cả (${posts.length})` },
-          { key: 'published', label: `Đã đăng (${posts.filter(p => p.status === 'published').length})` },
-          { key: 'draft', label: `Nháp (${posts.filter(p => p.status === 'draft').length})` },
+          { key: 'all', label: `Tất cả (${postList.length})` },
+          { key: 'published', label: `Đã đăng (${postList.filter(p => p.status === 'published').length})` },
+          { key: 'draft', label: `Nháp (${postList.filter(p => p.status === 'draft').length})` },
         ].map(tab => (
           <button
             key={tab.key}

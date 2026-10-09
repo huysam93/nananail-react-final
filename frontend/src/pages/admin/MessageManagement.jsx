@@ -9,9 +9,10 @@ const MessageManagement = () => {
         const fetchMessages = async () => {
             try {
                 const res = await apiClient.get('/messages');
-                setMessages(res.data);
+                setMessages(Array.isArray(res.data) ? res.data : []);
             } catch (error) {
                 console.error("Failed to fetch messages", error);
+                setMessages([]);
             } finally {
                 setLoading(false);
             }
@@ -40,7 +41,7 @@ const MessageManagement = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
-                             {messages.map(message => (
+                             {(Array.isArray(messages) ? messages : []).map(message => (
                                 <tr key={message.id}>
                                     <td className="py-4 px-6 whitespace-nowrap text-sm text-gray-500">{formatDate(message.createdAt)}</td>
                                     <td className="py-4 px-6 text-sm text-gray-800">{message.content}</td>

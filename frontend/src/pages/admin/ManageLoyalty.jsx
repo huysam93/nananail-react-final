@@ -31,8 +31,8 @@ const ManageLoyalty = () => {
 
   useEffect(() => { fetchAll(); }, []);
   useEffect(() => {
-    let list = members;
-    if (search) list = list.filter(m => m.full_name.toLowerCase().includes(search.toLowerCase()) || m.phone.includes(search));
+    let list = Array.isArray(members) ? members : [];
+    if (search) list = list.filter(m => (m.full_name || '').toLowerCase().includes(search.toLowerCase()) || (m.phone || '').includes(search));
     if (tierFilter !== 'Tất cả') list = list.filter(m => m.tier === tierFilter);
     setFiltered(list);
   }, [members, search, tierFilter]);
@@ -42,8 +42,8 @@ const ManageLoyalty = () => {
       apiClient.get('/loyalty/members'),
       apiClient.get('/loyalty/stats'),
     ]);
-    if (mRes.status === 'fulfilled') setMembers(mRes.value.data);
-    if (sRes.status === 'fulfilled') setStats(sRes.value.data);
+    if (mRes.status === 'fulfilled') setMembers(Array.isArray(mRes.value?.data) ? mRes.value.data : []);
+    if (sRes.status === 'fulfilled') setStats(sRes.value?.data || null);
   };
 
   const handleAddPoints = async (e) => {

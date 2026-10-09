@@ -16,9 +16,10 @@ const ManageSlider = () => {
     const fetchImages = async () => {
         try {
             const res = await apiClient.get('/slider');
-            setImages(res.data);
+            setImages(Array.isArray(res.data) ? res.data : []);
         } catch (error) {
             console.error("Failed to fetch slider images", error);
+            setImages([]);
         }
     };
 
@@ -77,7 +78,7 @@ const ManageSlider = () => {
                 </button>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                {images.map(image => (
+                {(Array.isArray(images) ? images : []).map(image => (
                     <div key={image.id} className="relative group aspect-square">
                         <img src={getImageUrl(image.image_base64)} alt="Slider image" className="w-full h-full object-cover rounded-lg" />
                         <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-lg">

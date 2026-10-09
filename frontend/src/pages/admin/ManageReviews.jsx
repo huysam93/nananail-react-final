@@ -20,11 +20,14 @@ const ManageReviews = () => {
   const fetchReviews = async () => {
     try {
       const res = await apiClient.get('/reviews/all');
-      setReviews(res.data);
+      setReviews(Array.isArray(res.data) ? res.data : []);
     } catch {
-      // fallback to public endpoint
-      const res = await apiClient.get('/reviews');
-      setReviews(res.data);
+      try {
+        const res = await apiClient.get('/reviews');
+        setReviews(Array.isArray(res.data) ? res.data : []);
+      } catch {
+        setReviews([]);
+      }
     }
   };
 
@@ -66,8 +69,9 @@ const ManageReviews = () => {
     }
   };
 
-  const filtered = filter === 'all' ? reviews : reviews.filter(r => (r.status || 'approved') === filter);
-  const pendingCount = reviews.filter(r => r.status === 'pending').length;
+  const reviewList = Array.isArray(reviews) ? reviews : [];
+  const filtered = filter === 'all' ? reviewList : reviewList.filter(r => (r.status || 'approved') === filter);
+  const pendingCount = reviewList.filter(r => r.status === 'pending').length;
 
   return (
     <div>

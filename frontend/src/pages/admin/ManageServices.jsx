@@ -27,9 +27,10 @@ const ManageServices = () => {
     try {
       setLoading(true);
       const res = await apiClient.get('/services');
-      setServices(res.data);
+      setServices(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
       console.error("Failed to fetch services", error);
+      setServices([]);
     } finally {
       setLoading(false);
     }
@@ -95,7 +96,8 @@ const ManageServices = () => {
   }, [services]);
 
   const filteredServices = useMemo(() => {
-    return services.filter(s => {
+    const list = Array.isArray(services) ? services : [];
+    return list.filter(s => {
       const matchCategory = selectedCategory === 'all' || s.category === selectedCategory;
       const q = searchQuery.toLowerCase();
       const matchSearch = !q ||
