@@ -1,2 +1,5 @@
 # Bỏ qua node_modules ở mọi cấp
 **/node_modules/
+
+# vite build luôn xuất trực tiếp vào backend/dist (xem frontend/vite.config.js)
+frontend/dist/
