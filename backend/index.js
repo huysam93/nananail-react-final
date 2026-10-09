@@ -20,7 +20,7 @@ const beforeAfterRoutes = require('./routes/before_after');
 const loyaltyRoutes = require('./routes/loyalty');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.SERVER_PORT || process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json({ limit: '15mb' }));
@@ -60,6 +60,6 @@ app.get('/', (req, res) => {
   res.send('NanaNail API is running...');
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server is running on port ${PORT}`);
 });
