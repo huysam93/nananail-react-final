@@ -149,7 +149,8 @@ const ContactPage = () => {
               </div>
             </div>
 
-            {/* Google Maps embed */}
+            {/* Google Maps embed — tạm ẩn */}
+            {/* 
             <div className="rounded-2xl overflow-hidden shadow-glass border border-brand-pink-light/50 h-56">
               <iframe
                 title="NanaNail Location"
@@ -162,6 +163,7 @@ const ContactPage = () => {
                 referrerPolicy="no-referrer-when-downgrade"
               />
             </div>
+            */}
           </motion.div>
 
           {/* Form */}

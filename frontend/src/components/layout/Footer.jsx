@@ -67,7 +67,8 @@ const Footer = () => {
       {/* Top gradient accent */}
       <div className="h-[3px] bg-gradient-to-r from-brand-pink-medium via-brand-pink-dark to-brand-rose-400" />
 
-      {/* Google Maps — muted style */}
+      {/* Google Maps — tạm ẩn theo yêu cầu */}
+      {/* 
       <div className="w-full h-44 sm:h-56 overflow-hidden">
         <iframe
           src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3903.8!2d108.44!3d11.94!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2s55B%2F7%20H%C3%A0n%20Thuy%C3%AAn%2C%20Ph%C6%B0%E1%BB%9Dng%204%2C%20%C4%90%C3%A0%20L%E1%BA%A1t!5e0!3m2!1svi!2svn!4v1234567890"
@@ -80,6 +81,7 @@ const Footer = () => {
           title="Vị trí NanaNail trên bản đồ"
         />
       </div>
+      */}
 
       <div className="container mx-auto px-4 sm:px-6 py-10 sm:py-14">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10">

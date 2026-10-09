@@ -13,30 +13,34 @@ import { useWishlist } from '../contexts/WishlistContext';
 import { getImageUrl } from '../utils/imageHelper';
 
 // ─── Hero Slider (Vivid Images with Soft Dark Gradient for Readability) ─────────
-const HeroSlider = ({ images }) => {
+const HeroSlider = ({ images = [] }) => {
+  const safeImages = Array.isArray(images) ? images : [];
   const [index, setIndex] = useState(0);
   const [direction, setDirection] = useState(1);
 
   const goTo = (newIndex) => {
+    if (!safeImages.length) return;
     setDirection(newIndex > index ? 1 : -1);
     setIndex(newIndex);
   };
 
   const prev = () => {
-    const newIndex = (index - 1 + images.length) % images.length;
+    if (!safeImages.length) return;
+    const newIndex = (index - 1 + safeImages.length) % safeImages.length;
     goTo(newIndex);
   };
 
   const next = () => {
-    const newIndex = (index + 1) % images.length;
+    if (!safeImages.length) return;
+    const newIndex = (index + 1) % safeImages.length;
     goTo(newIndex);
   };
 
   useEffect(() => {
-    if (!images.length) return;
+    if (!safeImages.length) return;
     const timer = setInterval(next, 5000);
     return () => clearInterval(timer);
-  }, [index, images.length]);
+  }, [index, safeImages.length]);
 
   const HeroContent = () => (
     <div className="relative container mx-auto px-6 h-full flex flex-col justify-center text-center text-white z-10 max-w-4xl">
@@ -86,7 +90,7 @@ const HeroSlider = ({ images }) => {
     </div>
   );
 
-  if (!images.length) {
+  if (!safeImages.length) {
     return (
       <div
         className="relative h-[82vh] min-h-[540px] bg-cover bg-center text-white flex items-center"
@@ -105,7 +109,7 @@ const HeroSlider = ({ images }) => {
           key={index}
           custom={direction}
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${getImageUrl(images[index].image_base64)})` }}
+          style={{ backgroundImage: `url(${getImageUrl(safeImages[index]?.image_base64)})` }}
           initial={{ opacity: 0, scale: 1.05 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0 }}
@@ -136,7 +140,7 @@ const HeroSlider = ({ images }) => {
 
       {/* Bottom navigation dots */}
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">
-        {images.map((_, i) => (
+        {safeImages.map((_, i) => (
           <button
             key={i}
             onClick={() => goTo(i)}
@@ -190,7 +194,8 @@ const StatsStrip = () => {
 };
 
 // ─── Gallery Carousel (Light Cards) ────────────────────────────────────────────
-const GalleryCarousel = ({ images }) => {
+const GalleryCarousel = ({ images = [] }) => {
+  const safeImages = Array.isArray(images) ? images : [];
   const { isInWishlist, toggleWishlist } = useWishlist();
   const scrollRef = useRef(null);
 
@@ -200,12 +205,12 @@ const GalleryCarousel = ({ images }) => {
     }
   };
 
-  if (!images.length) return null;
+  if (!safeImages.length) return null;
 
   return (
     <div className="relative group/gallery">
       <div ref={scrollRef} className="flex overflow-x-auto gap-4 py-2 scrollbar-hide snap-x snap-mandatory">
-        {images.map((image) => {
+        {safeImages.map((image) => {
           const isSaved = isInWishlist(image.id);
           return (
             <div
@@ -337,19 +342,19 @@ const HomePage = () => {
     const fetchData = async () => {
       try {
         const [servicesRes, reviewsRes, sliderRes, galleryRes, postsRes, baRes] = await Promise.all([
-          apiClient.get('/services?_limit=3'),
-          apiClient.get('/reviews?_limit=3'),
-          apiClient.get('/slider'),
-          apiClient.get('/gallery?_limit=8'),
-          apiClient.get('/posts?_limit=2'),
-          apiClient.get('/before-after?_limit=2'),
+          apiClient.get('/services?_limit=3').catch(() => ({ data: [] })),
+          apiClient.get('/reviews?_limit=3').catch(() => ({ data: [] })),
+          apiClient.get('/slider').catch(() => ({ data: [] })),
+          apiClient.get('/gallery?_limit=8').catch(() => ({ data: [] })),
+          apiClient.get('/posts?_limit=2').catch(() => ({ data: [] })),
+          apiClient.get('/before-after?_limit=2').catch(() => ({ data: [] })),
         ]);
-        setServices(servicesRes.data);
-        setReviews(reviewsRes.data);
-        setSliderImages(sliderRes.data);
-        setGalleryImages(galleryRes.data);
-        setPosts(postsRes.data);
-        setBeforeAfterList(baRes.data);
+        setServices(Array.isArray(servicesRes?.data) ? servicesRes.data : []);
+        setReviews(Array.isArray(reviewsRes?.data) ? reviewsRes.data : []);
+        setSliderImages(Array.isArray(sliderRes?.data) ? sliderRes.data : []);
+        setGalleryImages(Array.isArray(galleryRes?.data) ? galleryRes.data : []);
+        setPosts(Array.isArray(postsRes?.data) ? postsRes.data : []);
+        setBeforeAfterList(Array.isArray(baRes?.data) ? baRes.data : []);
       } catch (error) {
         console.error('Failed to fetch homepage data:', error);
       }

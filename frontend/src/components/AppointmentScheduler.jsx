@@ -24,7 +24,8 @@ const AppointmentScheduler = () => {
             setLoading(true);
             const response = await apiClient.get('/appointments');
             
-            const formattedEvents = response.data.map(apt => {
+            const apptList = Array.isArray(response?.data) ? response.data : [];
+            const formattedEvents = apptList.map(apt => {
                 let rawDate = (apt.appointment_date || '').trim();
                 if (rawDate.includes(' ')) {
                     rawDate = rawDate.replace(' ', 'T');
