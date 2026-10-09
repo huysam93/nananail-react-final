@@ -1,11 +1,21 @@
 import axios from 'axios';
 
 const apiClient = axios.create({
-  //baseURL: 'http://localhost:5000/api', // Backend API port. sử dụng để chạy local
-   baseURL: import.meta.env.VITE_API_URL, // Backend API port. sử dụng để deploy lên server
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
   headers: {
     'Content-Type': 'application/json',
   },
+});
+
+// Request interceptor to attach JWT Token
+apiClient.interceptors.request.use((config) => {
+  const token = localStorage.getItem('nananail_token') || sessionStorage.getItem('nananail_token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+}, (error) => {
+  return Promise.reject(error);
 });
 
 export default apiClient;

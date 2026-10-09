@@ -1,5 +1,5 @@
 import { NavLink, Routes, Route, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Scissors, ImageIcon, MessageSquare, Calendar, Mail, SlidersHorizontal, MessageCircle } from 'lucide-react';
+import { LayoutDashboard, Scissors, ImageIcon, MessageSquare, Calendar, Mail, SlidersHorizontal, MessageCircle, Newspaper, Tag, SplitSquareHorizontal, Crown } from 'lucide-react';
 import ManageServices from './admin/ManageServices';
 import ManageAppointments from './admin/ManageAppointments';
 import ManageGallery from './admin/ManageGallery';
@@ -7,6 +7,10 @@ import ManageSlider from './admin/ManageSlider';
 import ManageReviews from './admin/ManageReviews';
 import ManageContacts from './admin/ManageContacts';
 import MessageManagement from './admin/MessageManagement';
+import ManagePosts from './admin/ManagePosts';
+import ManagePromotions from './admin/ManagePromotions';
+import ManageBeforeAfter from './admin/ManageBeforeAfter';
+import ManageLoyalty from './admin/ManageLoyalty';
 import { useState, useEffect } from 'react';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement, LineElement, PointElement } from 'chart.js';
 import { Bar, Pie, Line } from 'react-chartjs-2';
@@ -27,6 +31,10 @@ const AdminDashboard = () => {
     if (path.startsWith('/reviews')) return 'Quản Lý Đánh Giá';
     if (path.startsWith('/contacts')) return 'Quản Lý Liên Hệ';
     if (path.startsWith('/messages')) return 'Quản Lý Tin Nhắn Chatbox';
+    if (path.startsWith('/posts')) return 'Quản Lý Bài Viết';
+    if (path.startsWith('/promotions')) return 'Quản Lý Khuyến Mãi';
+    if (path.startsWith('/before-after')) return 'Quản Lý Ảnh Trước/Sau';
+    if (path.startsWith('/loyalty')) return 'Quản Lý Thành Viên Loyalty';
     return 'Bảng Điều Khiển';
   };
 
@@ -62,15 +70,19 @@ const AdminDashboard = () => {
         overflow-y-auto
         shadow-lg md:shadow-none
       `}>
-        <nav className="space-y-2">
+        <nav className="space-y-2" onClick={() => setIsSidebarOpen(false)}>
           <NavLink to="/admin" end className={navLinkClass}><LayoutDashboard size={20} className="mr-3" /> Bảng Điều Khiển</NavLink>
           <NavLink to="/admin/services" className={navLinkClass}><Scissors size={20} className="mr-3" /> Dịch Vụ</NavLink>
           <NavLink to="/admin/appointments" className={navLinkClass}><Calendar size={20} className="mr-3" /> Lịch Hẹn</NavLink>
+          <NavLink to="/admin/promotions" className={navLinkClass}><Tag size={20} className="mr-3" /> Khuyến Mãi</NavLink>
+          <NavLink to="/admin/before-after" className={navLinkClass}><SplitSquareHorizontal size={20} className="mr-3" /> Ảnh Trước/Sau</NavLink>
+          <NavLink to="/admin/loyalty" className={navLinkClass}><Crown size={20} className="mr-3" /> Thành Viên</NavLink>
           <NavLink to="/admin/gallery" className={navLinkClass}><ImageIcon size={20} className="mr-3" /> Bộ Sưu Tập</NavLink>
           <NavLink to="/admin/slider" className={navLinkClass}><SlidersHorizontal size={20} className="mr-3" /> Slider</NavLink>
           <NavLink to="/admin/reviews" className={navLinkClass}><MessageSquare size={20} className="mr-3" /> Đánh Giá</NavLink>
           <NavLink to="/admin/contacts" className={navLinkClass}><Mail size={20} className="mr-3" /> Liên hệ</NavLink>
           <NavLink to="/admin/messages" className={navLinkClass}><MessageCircle size={20} className="mr-3" /> Tin nhắn Chatbox</NavLink>
+          <NavLink to="/admin/posts" className={navLinkClass}><Newspaper size={20} className="mr-3" /> Bài Viết</NavLink>
         </nav>
       </aside>
 
@@ -84,11 +96,15 @@ const AdminDashboard = () => {
           <Route index element={<DashboardHome />} />
           <Route path="services" element={<ManageServices />} />
           <Route path="appointments" element={<ManageAppointments />} />
+          <Route path="promotions" element={<ManagePromotions />} />
+          <Route path="before-after" element={<ManageBeforeAfter />} />
+          <Route path="loyalty" element={<ManageLoyalty />} />
           <Route path="gallery" element={<ManageGallery />} />
           <Route path="slider" element={<ManageSlider />} />
           <Route path="reviews" element={<ManageReviews />} />
           <Route path="contacts" element={<ManageContacts />} />
           <Route path="messages" element={<MessageManagement />} />
+          <Route path="posts" element={<ManagePosts />} />
         </Routes>
       </div>
 

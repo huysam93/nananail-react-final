@@ -1,0 +1,33 @@
+/* Hallmark · design-system: design.md · genre: modern-minimal · theme: Soft Light Pink & Blush */
+:root {
+  --color-paper: oklch(99.5% 0.005 350);
+  --color-paper-2: oklch(98% 0.015 350); /* #FFF1F2 soft blush */
+  --color-paper-3: oklch(95% 0.025 350); /* #FDE8F0 delicate pink */
+  --color-paper-dark: oklch(98% 0.015 350); /* Light blush banner, NO dark style */
+  --color-ink: oklch(25% 0.02 340);
+  --color-ink-2: oklch(50% 0.02 340);
+  --color-rule: oklch(92% 0.02 345); /* #FCE7F3 */
+  --color-accent: oklch(58% 0.20 345); /* #DB2777 */
+  --color-accent-hover: oklch(50% 0.22 345); /* #BE185D */
+  --color-accent-soft: oklch(97.5% 0.015 345); /* #FFF1F2 */
+  --color-focus: oklch(58% 0.20 345);
+
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+
+  --space-3xs: 0.25rem;
+  --space-2xs: 0.5rem;
+  --space-xs: 0.75rem;
+  --space-sm: 1rem;
+  --space-md: 1.5rem;
+  --space-lg: 2rem;
+  --space-xl: 3rem;
+  --space-2xl: 4.5rem;
+
+  --radius-card: 1rem;
+  --radius-pill: 9999px;
+  --radius-input: 0.75rem;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-short: 200ms;
+}

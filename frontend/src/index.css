@@ -1,7 +1,434 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+@import './tokens.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-body {
-  @apply bg-brand-pink-light text-gray-800 antialiased;
+/* ═══════════════════════════════════════════════════════════════════════════
+   BASE LAYER — Resets, typography, scrollbar
+   ═══════════════════════════════════════════════════════════════════════════ */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply font-sans text-gray-800 antialiased;
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+  }
+
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Focus outline — accessible & on-brand */
+  :focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  /* iPhone notch safe area */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Custom scrollbar (webkit) */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #e8c4d4;
+    border-radius: 999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #d89ab8;
+  }
+
+  /* Selection color */
+  ::selection {
+    background-color: rgba(219, 39, 119, 0.15);
+    color: #831843;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   COMPONENTS LAYER — Reusable, brand-consistent UI patterns
+   ═══════════════════════════════════════════════════════════════════════════ */
+@layer components {
+
+  /* ── Glass morphism ──────────────────────────────────────────────────── */
+  .glass {
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(16px) saturate(1.8);
+    -webkit-backdrop-filter: blur(16px) saturate(1.8);
+    border: 1px solid rgba(255, 255, 255, 0.65);
+  }
+
+  .glass-nav {
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(20px) saturate(1.6);
+    -webkit-backdrop-filter: blur(20px) saturate(1.6);
+    border-bottom: 1px solid rgba(219, 39, 119, 0.06);
+  }
+
+  .glass-card {
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(12px) saturate(1.4);
+    -webkit-backdrop-filter: blur(12px) saturate(1.4);
+    border: 1px solid rgba(253, 232, 240, 0.8);
+  }
+
+  /* ── Input fields ───────────────────────────────────────────────────── */
+  .input-field {
+    @apply block w-full px-4 py-3 bg-white border border-gray-200 rounded-xl shadow-sm
+           transition-all duration-200 text-gray-800 placeholder-gray-400 text-sm
+           focus:outline-none focus:ring-2 focus:ring-brand-pink-medium/40 focus:border-brand-pink-medium;
+    min-height: 48px;
+  }
+  .input-field:hover {
+    @apply border-brand-pink-medium/50;
+  }
+
+  /* ── Floating label ─────────────────────────────────────────────────── */
+  .floating-label-group {
+    @apply relative;
+  }
+  .floating-label-group input,
+  .floating-label-group select,
+  .floating-label-group textarea {
+    @apply block w-full px-4 pt-6 pb-2 border border-gray-200 rounded-xl bg-white
+           transition-all duration-200 text-gray-800
+           focus:outline-none focus:ring-2 focus:ring-brand-pink-medium/40 focus:border-brand-pink-medium;
+  }
+  .floating-label-group label {
+    @apply absolute left-4 top-4 text-gray-400 text-sm transition-all duration-200 pointer-events-none origin-left;
+  }
+  .floating-label-group input:focus ~ label,
+  .floating-label-group input:not(:placeholder-shown) ~ label,
+  .floating-label-group select:focus ~ label,
+  .floating-label-group select:not([value=""]) ~ label,
+  .floating-label-group textarea:focus ~ label,
+  .floating-label-group textarea:not(:placeholder-shown) ~ label {
+    @apply text-xs text-brand-pink-dark;
+    transform: translateY(-10px) scale(0.85);
+  }
+
+  /* ── Section headings ───────────────────────────────────────────────── */
+  .section-title {
+    @apply text-2xl sm:text-3xl md:text-4xl font-serif font-bold text-center text-gray-800 mb-3;
+  }
+  .section-subtitle {
+    @apply text-center text-gray-500 mb-10 max-w-xl mx-auto text-base md:text-lg leading-relaxed;
+  }
+  .section-badge {
+    @apply inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs sm:text-sm font-semibold mb-4;
+    background: linear-gradient(135deg, #FFF1F2 0%, #FBCFE8 100%);
+    color: #BE185D;
+    border: 1px solid rgba(219, 39, 119, 0.2);
+  }
+
+  /* ── Buttons ─────────────────────────────────────────────────────────── */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 rounded-full
+           text-white font-semibold shadow-glow-pink
+           hover:shadow-floating hover:scale-[1.03] active:scale-[0.97]
+           transition-all duration-300 cursor-pointer text-sm sm:text-base;
+    background: linear-gradient(135deg, #DB2777 0%, #F472B6 100%);
+  }
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #BE185D 0%, #EC4899 100%);
+  }
+  .btn-primary:disabled {
+    @apply opacity-60 cursor-not-allowed hover:scale-100 hover:shadow-glow-pink;
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 rounded-full
+           border-2 border-brand-pink-dark text-brand-pink-dark font-semibold text-sm sm:text-base
+           hover:bg-brand-pink-dark hover:text-white active:scale-[0.97]
+           transition-all duration-300 cursor-pointer;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full
+           text-gray-600 font-medium text-sm
+           hover:bg-brand-pink-light hover:text-brand-pink-dark transition-all duration-200 cursor-pointer;
+  }
+
+  /* ── Pills ───────────────────────────────────────────────────────────── */
+  .pill {
+    @apply px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 cursor-pointer;
+  }
+  .pill-active {
+    @apply text-white shadow-glow-pink;
+    background: linear-gradient(135deg, #DB2777 0%, #F472B6 100%);
+  }
+  .pill-inactive {
+    @apply bg-white text-gray-600 border border-gray-200 hover:border-brand-pink-medium hover:text-brand-pink-dark;
+  }
+
+  /* ── Cards ────────────────────────────────────────────────────────────── */
+  .card-nail {
+    @apply bg-white rounded-2xl border border-pink-200/90
+           hover:-translate-y-1.5 hover:border-brand-pink-dark/50
+           transition-all duration-300 overflow-hidden;
+    box-shadow: 0 10px 30px -5px rgba(219, 39, 119, 0.09), 0 4px 12px -2px rgba(0, 0, 0, 0.05);
+  }
+  .card-nail:hover {
+    box-shadow: 0 20px 45px -10px rgba(219, 39, 119, 0.20), 0 8px 20px -4px rgba(0, 0, 0, 0.08);
+  }
+  .card-stat {
+    @apply bg-white rounded-2xl p-5 sm:p-7 text-center border border-pink-200/80
+           hover:-translate-y-1 transition-all duration-300;
+    box-shadow: 0 8px 25px -4px rgba(219, 39, 119, 0.08), 0 2px 8px -1px rgba(0, 0, 0, 0.04);
+  }
+  .card-stat:hover {
+    box-shadow: 0 16px 36px -8px rgba(219, 39, 119, 0.18);
+  }
+
+  /* ── Skeleton loading ────────────────────────────────────────────────── */
+  .skeleton {
+    @apply bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100 rounded-lg overflow-hidden relative;
+    background-size: 200% 100%;
+    animation: shimmer 1.8s ease-in-out infinite;
+  }
+
+  /* ── Page hero banners ───────────────────────────────────────────────── */
+  .page-hero {
+    @apply py-14 sm:py-20 border-b border-brand-pink-light/60;
+    background: linear-gradient(135deg, #FFF1F2 0%, #FFFFFF 40%, #FDE8F0 70%, #FDF6F0 100%);
+  }
+
+  /* ── Step indicator (booking flow) ───────────────────────────────────── */
+  .step-circle {
+    @apply w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 flex-shrink-0;
+  }
+  .step-circle-active {
+    @apply text-white shadow-glow-pink scale-110;
+    background: linear-gradient(135deg, #DB2777 0%, #F472B6 100%);
+  }
+  .step-circle-done {
+    @apply bg-green-500 text-white;
+  }
+  .step-circle-inactive {
+    @apply bg-gray-100 text-gray-400;
+  }
+
+  /* ── Announcement bar ────────────────────────────────────────────────── */
+  .announcement-bar {
+    @apply text-center text-xs sm:text-sm font-medium py-2 px-4;
+    background: linear-gradient(90deg, #DB2777 0%, #F472B6 50%, #DB2777 100%);
+    background-size: 200% 100%;
+    animation: gradientShift 4s ease infinite;
+    color: white;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   UTILITIES LAYER — One-off helpers
+   ═══════════════════════════════════════════════════════════════════════════ */
+@layer utilities {
+
+  /* ── Scrollbar hide ──────────────────────────────────────────────────── */
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* ── Accent & Highlight text (Anti-slop: Solid colors over gradients) ── */
+  .text-gradient,
+  .text-gradient-rose {
+    color: var(--color-accent);
+  }
+  .text-gradient-gold {
+    color: oklch(50% 0.12 75);
+  }
+
+  /* ── Background patterns ─────────────────────────────────────────────── */
+  .bg-pattern {
+    background-image: radial-gradient(circle at 20px 20px, rgba(219, 39, 119, 0.03) 1.5px, transparent 0);
+    background-size: 40px 40px;
+  }
+  .bg-dots-pink {
+    background-image: radial-gradient(circle, #FDA4AF 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  /* ── Mobile touch target ─────────────────────────────────────────────── */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* ── Line clamp ──────────────────────────────────────────────────────── */
+  .line-clamp-1 { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; }
+  .line-clamp-2 { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .line-clamp-3 { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
+  .line-clamp-4 { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; }
+
+  /* ── Decorative divider ──────────────────────────────────────────────── */
+  .divider-ornament {
+    @apply flex items-center justify-center gap-3 my-8;
+  }
+  .divider-ornament::before,
+  .divider-ornament::after {
+    content: '';
+    @apply h-px flex-1;
+    background: linear-gradient(90deg, transparent, rgba(219, 39, 119, 0.2), transparent);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   FULLCALENDAR MOBILE RESPONSIVE OVERRIDES
+   ═══════════════════════════════════════════════════════════════════════════ */
+.fullcalendar-custom-wrapper .fc {
+  font-family: inherit !important;
+}
+
+.fullcalendar-custom-wrapper .fc-toolbar {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 0.5rem !important;
+  margin-bottom: 1rem !important;
+}
+
+.fullcalendar-custom-wrapper .fc-toolbar-title {
+  font-size: 1.1rem !important;
+  font-weight: 700 !important;
+  color: #1F2937 !important;
+  line-height: 1.2 !important;
+  white-space: nowrap !important;
+}
+
+.fullcalendar-custom-wrapper .fc-button {
+  background-color: #F3F4F6 !important;
+  border-color: #E5E7EB !important;
+  color: #374151 !important;
+  font-size: 0.8rem !important;
+  font-weight: 600 !important;
+  padding: 0.35rem 0.65rem !important;
+  border-radius: 0.5rem !important;
+  box-shadow: none !important;
+  text-transform: capitalize !important;
+  transition: all 0.2s ease !important;
+}
+
+.fullcalendar-custom-wrapper .fc-button:hover {
+  background-color: #E5E7EB !important;
+  color: #111827 !important;
+}
+
+.fullcalendar-custom-wrapper .fc-button-active,
+.fullcalendar-custom-wrapper .fc-button-active:hover {
+  background-color: #DB2777 !important;
+  border-color: #DB2777 !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 2px 8px rgba(219, 39, 119, 0.3) !important;
+}
+
+.fullcalendar-custom-wrapper .fc-button-group {
+  display: inline-flex !important;
+  gap: 2px !important;
+}
+
+.fullcalendar-custom-wrapper .fc-button-group > .fc-button {
+  border-radius: 0.5rem !important;
+  margin: 0 !important;
+}
+
+/* Mobile specific fixes */
+@media (max-width: 640px) {
+  .fullcalendar-custom-wrapper .fc-toolbar {
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    gap: 0.35rem !important;
+    margin-bottom: 0.75rem !important;
+  }
+
+  .fullcalendar-custom-wrapper .fc-toolbar-title {
+    font-size: 0.95rem !important;
+    white-space: nowrap !important;
+    text-align: center !important;
+  }
+
+  .fullcalendar-custom-wrapper .fc-button {
+    padding: 0.25rem 0.45rem !important;
+    font-size: 0.725rem !important;
+  }
+
+  .fullcalendar-custom-wrapper .fc-toolbar-chunk {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.2rem !important;
+  }
+
+  .fullcalendar-custom-wrapper .fc-col-header-cell-cushion {
+    font-size: 0.7rem !important;
+    padding: 3px 1px !important;
+    font-weight: 600 !important;
+  }
+
+  .fullcalendar-custom-wrapper .fc-daygrid-day-number {
+    font-size: 0.725rem !important;
+    padding: 2px 4px !important;
+  }
+
+  .fullcalendar-custom-wrapper .fc-daygrid-day-frame {
+    min-height: 48px !important;
+  }
+
+  .fullcalendar-custom-wrapper .fc-event {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin-bottom: 2px !important;
+  }
+
+  .fullcalendar-custom-wrapper .fc-daygrid-event-harness {
+    margin-bottom: 2px !important;
+  }
+
+  .fullcalendar-custom-wrapper .fc-more-link {
+    font-size: 0.7rem !important;
+    font-weight: 700 !important;
+    color: #BE185D !important;
+    background-color: #FFF1F2 !important;
+    border: 1px solid #FBCFE8 !important;
+    padding: 1px 5px !important;
+    border-radius: 6px !important;
+    display: inline-block !important;
+    margin-top: 2px !important;
+    text-decoration: none !important;
+  }
+
+  .fullcalendar-custom-wrapper .fc-more-link:hover {
+    background-color: #FCE7F3 !important;
+    color: #9D174D !important;
+  }
+
+  .fullcalendar-custom-wrapper .fc-list-event-title {
+    font-size: 0.825rem !important;
+    font-weight: 500 !important;
+  }
+}
+
+/* Hide FullCalendar default popover */
+.fc-popover {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
 }

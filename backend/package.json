@@ -4,7 +4,8 @@
   "description": "Backend API for NanaNail website",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "seed": "node seed_dummy_data.js"
   },
   "author": "NanaNail Dev Team",
   "license": "ISC",
@@ -14,6 +15,7 @@
     "dotenv": "^16.5.0",
     "express": "^4.19.2",
     "follow-redirects": "^1.15.9",
+    "jsonwebtoken": "^9.0.3",
     "nodemailer": "^6.9.13",
     "sqlite3": "^5.1.7"
   }

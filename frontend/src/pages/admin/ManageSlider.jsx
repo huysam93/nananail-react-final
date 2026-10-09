@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import apiClient from '../../api/axiosConfig';
 import { Trash2, PlusCircle, UploadCloud } from 'lucide-react';
+import { getImageUrl } from '../../utils/imageHelper';
 
 const ManageSlider = () => {
     const [images, setImages] = useState([]);
@@ -78,8 +79,8 @@ const ManageSlider = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
                 {images.map(image => (
                     <div key={image.id} className="relative group aspect-square">
-                        <img src={`data:image/jpeg;base64,${image.image_base64}`} alt="Slider image" className="w-full h-full object-cover rounded-lg" />
-                        <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <img src={getImageUrl(image.image_base64)} alt="Slider image" className="w-full h-full object-cover rounded-lg" />
+                        <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-lg">
                             <button onClick={() => handleDelete(image.id)} className="text-white p-2 bg-red-600 rounded-full hover:bg-red-700">
                                 <Trash2 size={20} />
                             </button>

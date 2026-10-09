@@ -6,6 +6,7 @@ npm run dev
 trong axiosConfig.js mở baseURL 
 
 npm run build trong frontend, sau đó copy dist từ frontend sang backend
+(Hoặc chạy trực tiếp file build.bat ở thư mục gốc để tự động làm việc này)
 
 
 git pull

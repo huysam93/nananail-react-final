@@ -1,0 +1,10 @@
+{
+  "name": "nananail-app",
+  "version": "1.0.0",
+  "description": "NanaNail Full-Stack Application",
+  "scripts": {
+    "postinstall": "npm --prefix backend install",
+    "start": "npm --prefix backend start",
+    "build": "npm --prefix frontend install && npm --prefix frontend run build"
+  }
+}
