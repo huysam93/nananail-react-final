@@ -8,24 +8,91 @@ require('dotenv').config();
 const DB_FILE = path.join(__dirname, 'nananail.db');
 let db;
 
-// Tải file .db từ Google Drive
-function downloadDatabaseBackup(url, destination, callback) {
-    const file = fs.createWriteStream(destination);
-    https.get(url, (response) => {
-        if (response.statusCode !== 200) {
-            return callback(new Error(`Failed to download: ${response.statusCode}`));
+// Adapter biến Turso Client thành giao diện tương thích SQLite3 (all, get, run, serialize)
+function createTursoAdapter(tursoClient) {
+    return {
+        isTurso: true,
+        all(sql, params, callback) {
+            if (typeof params === 'function') {
+                callback = params;
+                params = [];
+            }
+            tursoClient.execute({ sql, args: params || [] })
+                .then(res => {
+                    if (callback) callback(null, res.rows);
+                })
+                .catch(err => {
+                    if (callback) callback(err);
+                    else console.error('Turso all error:', err);
+                });
+        },
+        get(sql, params, callback) {
+            if (typeof params === 'function') {
+                callback = params;
+                params = [];
+            }
+            tursoClient.execute({ sql, args: params || [] })
+                .then(res => {
+                    const row = res.rows && res.rows.length > 0 ? res.rows[0] : undefined;
+                    if (callback) callback(null, row);
+                })
+                .catch(err => {
+                    if (callback) callback(err);
+                    else console.error('Turso get error:', err);
+                });
+        },
+        run(sql, params, callback) {
+            if (typeof params === 'function') {
+                callback = params;
+                params = [];
+            }
+            tursoClient.execute({ sql, args: params || [] })
+                .then(res => {
+                    const context = {
+                        lastID: res.lastInsertRowid !== undefined ? Number(res.lastInsertRowid) : 0,
+                        changes: res.rowsAffected || 0
+                    };
+                    if (callback) {
+                        callback.call(context, null);
+                    }
+                })
+                .catch(err => {
+                    if (callback) {
+                        callback(err);
+                    } else {
+                        console.error('Turso run error:', err.message);
+                    }
+                });
+        },
+        serialize(callback) {
+            if (callback) callback();
         }
-
-        response.pipe(file);
-        file.on('finish', () => file.close(callback));
-    }).on('error', (err) => {
-        fs.unlink(destination, () => { }); // Xoá file nếu lỗi
-        callback(err);
-    });
+    };
 }
 
-// Khởi tạo DB
+// Khởi tạo DB (Tự động chọn Turso nếu có cấu hình, hoặc fallback sang SQLite file cục bộ)
 function initializeDB() {
+    const isTursoConfigured = !!(process.env.TURSO_DATABASE_URL && process.env.TURSO_AUTH_TOKEN);
+
+    if (isTursoConfigured) {
+        console.log('☁️ Đang kết nối tới Turso Cloud SQLite...');
+        const { createClient } = require('@libsql/client');
+        const tursoClient = createClient({
+            url: process.env.TURSO_DATABASE_URL,
+            authToken: process.env.TURSO_AUTH_TOKEN
+        });
+
+        db = createTursoAdapter(tursoClient);
+        console.log('✅ Đã kết nối thành công tới Turso Cloud Database!');
+
+        createTables(db, () => {
+            runMigrations(db);
+            ensureAdminUser();
+        });
+        return;
+    }
+
+    // Nếu không có Turso, chạy SQLite file cục bộ
     const dbExists = fs.existsSync(DB_FILE);
 
     const startApp = () => {
@@ -34,7 +101,7 @@ function initializeDB() {
                 console.error('❌ Error connecting to database:', err.message);
                 return;
             }
-            console.log('✅ Connected to the NanaNail SQLite database.');
+            console.log('✅ Connected to the local NanaNail SQLite database.');
 
             createTables(db, () => {
                 runMigrations(db);
@@ -69,6 +136,7 @@ function initializeDB() {
         startApp();
     }
 }
+
 
 // Kiểm tra và tạo tất cả các bảng nếu chưa tồn tại
 function createTables(database, callback) {
