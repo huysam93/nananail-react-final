@@ -3,6 +3,7 @@ import apiClient from '../../api/axiosConfig';
 import { Plus, Trash2, Upload, ImageIcon, Eye } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { getImageUrl } from '../../utils/imageHelper';
+import { compressImageFile } from '../../utils/imageCompress';
 
 const ManageBeforeAfter = () => {
     const [images, setImages] = useState([]);
@@ -34,14 +35,6 @@ const ManageBeforeAfter = () => {
         reader.readAsDataURL(file);
     };
 
-    // Convert file to base64
-    const toBase64 = (file) => new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result.split(',')[1]);
-        reader.onerror = reject;
-    });
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!beforeFile || !afterFile) {
@@ -50,8 +43,8 @@ const ManageBeforeAfter = () => {
         }
         setLoading(true);
         try {
-            const before_b64 = await toBase64(beforeFile);
-            const after_b64  = await toBase64(afterFile);
+            const before_b64 = await compressImageFile(beforeFile);
+            const after_b64  = await compressImageFile(afterFile);
             await apiClient.post('/before-after', {
                 ...form,
                 before_image: before_b64,
@@ -64,7 +57,12 @@ const ManageBeforeAfter = () => {
             fetchImages();
         } catch (err) {
             console.error('Upload failed:', err);
-            alert('Lỗi khi tải ảnh. Vui lòng thử lại.');
+            const serverMsg = err.response?.data?.error;
+            if (err.response?.status === 413) {
+                alert('Ảnh quá lớn, vui lòng chọn ảnh khác hoặc thử lại.');
+            } else {
+                alert(serverMsg || 'Lỗi khi tải ảnh. Vui lòng thử lại.');
+            }
         } finally {
             setLoading(false);
         }

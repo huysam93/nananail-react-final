@@ -28,6 +28,15 @@ const PORT = process.env.SERVER_PORT || process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json({ limit: '15mb' }));
+app.use((err, req, res, next) => {
+  if (err.type === 'entity.too.large') {
+    return res.status(413).json({ error: 'Dữ liệu gửi lên quá lớn (ảnh quá lớn).' });
+  }
+  if (err instanceof SyntaxError && err.status === 400) {
+    return res.status(400).json({ error: 'Dữ liệu gửi lên không hợp lệ.' });
+  }
+  next(err);
+});
 
 // Serve static uploads directory for images
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
