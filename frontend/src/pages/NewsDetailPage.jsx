@@ -13,7 +13,13 @@ const NewsDetailPage = () => {
   useEffect(() => {
     setLoading(true);
     apiClient.get(`/posts/${idOrSlug}`)
-      .then((res) => setPost(res.data))
+      .then((res) => {
+        if (res.data && !res.data.error && res.data.title) {
+          setPost(res.data);
+        } else {
+          setError(true);
+        }
+      })
       .catch(() => setError(true))
       .finally(() => setLoading(false));
   }, [idOrSlug]);

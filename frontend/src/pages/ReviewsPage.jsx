@@ -208,15 +208,19 @@ const ReviewsPage = () => {
 
   const fetchReviews = () => {
     apiClient.get('/reviews')
-      .then(res => setReviews(res.data))
-      .catch(err => console.error('Failed to fetch reviews:', err));
+      .then(res => setReviews(Array.isArray(res.data) ? res.data : []))
+      .catch(err => {
+        console.error('Failed to fetch reviews:', err);
+        setReviews([]);
+      });
   };
 
   useEffect(() => {
     fetchReviews();
   }, []);
 
-  const filteredReviews = filterRating ? reviews.filter(r => r.rating === filterRating) : reviews;
+  const safeReviews = Array.isArray(reviews) ? reviews : [];
+  const filteredReviews = filterRating ? safeReviews.filter(r => r.rating === filterRating) : safeReviews;
 
   return (
     <div>

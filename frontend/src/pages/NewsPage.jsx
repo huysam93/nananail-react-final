@@ -80,19 +80,24 @@ const NewsPage = () => {
     setLoading(true);
     apiClient.get('/posts')
       .then((res) => {
-        setPosts(res.data);
-        const cats = ['Tất cả', ...new Set(res.data.map((p) => p.category).filter(Boolean))];
+        const data = Array.isArray(res.data) ? res.data : [];
+        setPosts(data);
+        const cats = ['Tất cả', ...new Set(data.map((p) => p.category).filter(Boolean))];
         setCategories(cats);
       })
-      .catch((err) => console.error(err))
+      .catch((err) => {
+        console.error(err);
+        setPosts([]);
+      })
       .finally(() => setLoading(false));
   }, []);
 
-  const filtered = posts.filter((p) => {
+  const safePosts = Array.isArray(posts) ? posts : [];
+  const filtered = safePosts.filter((p) => {
     const matchCat = activeCategory === 'Tất cả' || p.category === activeCategory;
     const matchSearch =
       !searchQuery ||
-      p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (p.title && p.title.toLowerCase().includes(searchQuery.toLowerCase())) ||
       (p.excerpt || '').toLowerCase().includes(searchQuery.toLowerCase());
     return matchCat && matchSearch;
   });

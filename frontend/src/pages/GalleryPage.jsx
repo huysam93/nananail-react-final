@@ -149,23 +149,29 @@ const GalleryPage = () => {
   useEffect(() => {
     apiClient.get('/gallery')
       .then(res => {
-        const fetchedImages = res.data;
+        const fetchedImages = Array.isArray(res.data) ? res.data : [];
         setImages(fetchedImages);
         setFilteredImages(fetchedImages);
         const allTags = ['Tất cả', ...new Set(fetchedImages.map(img => img.tag).filter(Boolean))];
         setTags(allTags);
       })
-      .catch(err => console.error('Failed to fetch gallery:', err));
+      .catch(err => {
+        console.error('Failed to fetch gallery:', err);
+        setImages([]);
+        setFilteredImages([]);
+      });
   }, []);
 
   const handleFilter = (tag) => {
     setActiveTag(tag);
-    setFilteredImages(tag === 'Tất cả' ? images : images.filter(img => img.tag === tag));
+    const safeImages = Array.isArray(images) ? images : [];
+    setFilteredImages(tag === 'Tất cả' ? safeImages : safeImages.filter(img => img.tag === tag));
   };
 
   const getTagCount = (tag) => {
-    if (tag === 'Tất cả') return images.length;
-    return images.filter(img => img.tag === tag).length;
+    const safeImages = Array.isArray(images) ? images : [];
+    if (tag === 'Tất cả') return safeImages.length;
+    return safeImages.filter(img => img.tag === tag).length;
   };
 
   const openLightbox = (i) => setLightboxIndex(i);

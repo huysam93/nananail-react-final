@@ -15,7 +15,7 @@ const AboutPage = () => {
 
   useEffect(() => {
     apiClient.get('/about')
-      .then(res => setAboutContent(res.data.content))
+      .then(res => setAboutContent(res.data?.content || ''))
       .catch(err => console.error('Failed to fetch about content:', err));
   }, []);
 

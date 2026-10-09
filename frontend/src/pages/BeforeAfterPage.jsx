@@ -126,15 +126,16 @@ const BeforeAfterPage = () => {
   useEffect(() => {
     apiClient.get('/before-after')
       .then(res => {
-        if (res.data && res.data.length > 0) {
+        if (Array.isArray(res.data) && res.data.length > 0) {
           setItems(res.data);
         }
       })
       .catch(err => console.error('Failed to fetch before-after items:', err));
   }, []);
 
-  const categories = ['Tất cả', ...new Set(items.map(i => i.category).filter(Boolean))];
-  const filtered = activeFilter === 'Tất cả' ? items : items.filter(i => i.category === activeFilter);
+  const safeItems = Array.isArray(items) ? items : fallbackItems;
+  const categories = ['Tất cả', ...new Set(safeItems.map(i => i.category).filter(Boolean))];
+  const filtered = activeFilter === 'Tất cả' ? safeItems : safeItems.filter(i => i.category === activeFilter);
 
   return (
     <div>

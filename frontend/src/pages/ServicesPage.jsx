@@ -162,13 +162,17 @@ const ServicesPage = () => {
 
   useEffect(() => {
     apiClient.get('/services')
-      .then(res => setServices(res.data))
-      .catch(err => console.error(err));
+      .then(res => setServices(Array.isArray(res.data) ? res.data : []))
+      .catch(err => {
+        console.error(err);
+        setServices([]);
+      });
   }, []);
 
   // Lấy categories
-  const categories = ['Tất cả', ...new Set(services.map(s => s.category).filter(Boolean))];
-  const filtered = activeCategory === 'Tất cả' ? services : services.filter(s => s.category === activeCategory);
+  const safeServices = Array.isArray(services) ? services : [];
+  const categories = ['Tất cả', ...new Set(safeServices.map(s => s.category).filter(Boolean))];
+  const filtered = activeCategory === 'Tất cả' ? safeServices : safeServices.filter(s => s.category === activeCategory);
 
   return (
     <div>

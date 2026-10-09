@@ -16,7 +16,7 @@ const PromotionsPage = () => {
 
   useEffect(() => {
     apiClient.get('/promotions')
-      .then(res => setPromotions(res.data))
+      .then(res => setPromotions(Array.isArray(res.data) ? res.data : []))
       .catch(() => setPromotions([]))
       .finally(() => setLoading(false));
   }, []);
@@ -91,7 +91,8 @@ const PromotionsPage = () => {
     },
   ];
 
-  const displayPromos = promotions.length > 0 ? promotions : fallbackPromos;
+  const safePromotions = Array.isArray(promotions) ? promotions : [];
+  const displayPromos = safePromotions.length > 0 ? safePromotions : fallbackPromos;
 
   const formatDate = (d) => {
     if (!d) return null;

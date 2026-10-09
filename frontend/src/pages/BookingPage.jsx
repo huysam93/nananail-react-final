@@ -489,12 +489,16 @@ const BookingPage = () => {
 
   useEffect(() => {
     apiClient.get('/services').then(res => {
-      setServices(res.data);
+      const data = Array.isArray(res.data) ? res.data : [];
+      setServices(data);
       if (preselectedId) {
-        const found = res.data.find(s => String(s.id) === preselectedId);
+        const found = data.find(s => String(s.id) === preselectedId);
         if (found) setSelectedServices([found.id]);
       }
-    }).catch(console.error);
+    }).catch(err => {
+      console.error(err);
+      setServices([]);
+    });
   }, []);
 
   const canNext = () => {
