@@ -3,6 +3,8 @@ const bcrypt = require('bcryptjs');
 const fs = require('fs');
 const path = require('path');
 const { https } = require('follow-redirects');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
+require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 require('dotenv').config();
 
 const DB_FILE = path.join(__dirname, 'nananail.db');

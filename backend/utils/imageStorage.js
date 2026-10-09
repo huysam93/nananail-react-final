@@ -18,6 +18,17 @@ const saveBase64Image = (base64Data, prefix = 'img') => {
     return base64Data;
   }
 
+  // Đảm bảo có tiền tố data URI chuẩn
+  const normalizedDataUri = base64Data.startsWith('data:image') 
+    ? base64Data 
+    : `data:image/jpeg;base64,${base64Data}`;
+
+  // Nếu đang kết nối Turso Cloud hoặc môi trường Render, lưu Base64 trực tiếp vào Database
+  // để hình ảnh không bao giờ bị Render xóa mất sau mỗi lần redeploy/restart (ephemeral filesystem)!
+  if (process.env.TURSO_DATABASE_URL || process.env.RENDER) {
+    return normalizedDataUri;
+  }
+
   try {
     // Strip data prefix if present (e.g. data:image/png;base64,)
     const matches = base64Data.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
@@ -40,7 +51,7 @@ const saveBase64Image = (base64Data, prefix = 'img') => {
     return `/uploads/${fileName}`;
   } catch (error) {
     console.error('Failed to save image file:', error);
-    return base64Data; // fallback to original
+    return normalizedDataUri; // fallback to original data URI
   }
 };
 
