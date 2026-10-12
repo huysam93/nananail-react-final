@@ -17,6 +17,28 @@ const HeroSlider = ({ images = [] }) => {
   const safeImages = Array.isArray(images) ? images : [];
   const [index, setIndex] = useState(0);
   const [direction, setDirection] = useState(1);
+  const [firstReady, setFirstReady] = useState(false);
+  const readyIndexesRef = useRef(new Set());
+
+  // Preload every slide in the background so switching to it never stalls on
+  // decoding a multi-MB base64 image mid-transition (that stall is the "giật" jank).
+  useEffect(() => {
+    if (!safeImages.length) return;
+    let cancelled = false;
+    readyIndexesRef.current = new Set();
+    safeImages.forEach((img, i) => {
+      const el = new Image();
+      const markReady = () => {
+        if (cancelled) return;
+        readyIndexesRef.current.add(i);
+        if (i === 0) setFirstReady(true);
+      };
+      el.onload = markReady;
+      el.onerror = markReady; // don't get stuck on the fallback forever if one slide fails to load
+      el.src = getImageUrl(img?.image_base64);
+    });
+    return () => { cancelled = true; };
+  }, [safeImages]);
 
   const goTo = (newIndex) => {
     if (!safeImages.length) return;
@@ -33,7 +55,8 @@ const HeroSlider = ({ images = [] }) => {
   const next = () => {
     if (!safeImages.length) return;
     const newIndex = (index + 1) % safeImages.length;
-    goTo(newIndex);
+    // Only auto-advance once that slide has finished preloading, otherwise wait for the next tick
+    if (readyIndexesRef.current.has(newIndex)) goTo(newIndex);
   };
 
   useEffect(() => {
@@ -90,7 +113,7 @@ const HeroSlider = ({ images = [] }) => {
     </div>
   );
 
-  if (!safeImages.length) {
+  if (!safeImages.length || !firstReady) {
     return (
       <div
         className="relative h-[82vh] min-h-[540px] bg-cover bg-center text-white flex items-center"
